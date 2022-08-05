@@ -43,7 +43,11 @@ class App extends React.Component {
     let timeStamp = new Date().toLocaleString();
     const messageListRef = ref(database, MESSAGE_FOLDER_NAME);
     const newMessageRef = push(messageListRef);
-    set(newMessageRef, `${timeStamp}: ${this.state.inputMessage}`);
+    set(newMessageRef, {
+      date: timeStamp,
+      message: this.state.inputMessage,
+      imageurl: url,
+    });
   };
 
   uploadImage = (e) => {
@@ -58,22 +62,24 @@ class App extends React.Component {
     );
     uploadBytes(storageRef, this.state.fileInputFile)
       .then((snapshot) => {
-        // console.log("uploaded:", snapshot);
-        // console.log(snapshot.ref)
         return getDownloadURL(snapshot.ref);
       })
       .then((url) => {
-        console.log(url);
         return this.writeData(url);
       });
 
-    this.setState({ fileInputValue: "" });
+    this.setState({ fileInputValue: "", inputMessage: "" });
   };
 
   render() {
     // Convert messages in state to message JSX elements to render
     let messageListItems = this.state.messages.map((message) => (
-      <li key={message.key}>{message.val}</li>
+      <li key={message.key}>
+        {message.val.date}
+        <br /> {message.val.message}
+        <br />
+        <img className="images" src={message.val.imageurl} alt="" />
+      </li>
     ));
     return (
       <div className="App">
@@ -92,7 +98,7 @@ class App extends React.Component {
             <input
               type="submit"
               value="Send Message"
-              onClick={this.writeData}
+              onClick={() => this.writeData("")}
             />
             <br />
             <input
