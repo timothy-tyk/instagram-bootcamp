@@ -1,5 +1,12 @@
 import React from "react";
-import { onChildAdded, push, ref, set } from "firebase/database";
+import {
+  onChildAdded,
+  onChildChanged,
+  push,
+  ref,
+  set,
+  update,
+} from "firebase/database";
 import { database, storage } from "./firebase";
 import logo from "./logo.png";
 import "./App.css";
@@ -23,6 +30,8 @@ class App extends React.Component {
       messages: [],
       fileInputFile: null,
       fileInputValue: "",
+      comment: "",
+      commentOn: [],
     };
   }
 
@@ -36,6 +45,11 @@ class App extends React.Component {
         messages: [...state.messages, { key: data.key, val: data.val() }],
       }));
     });
+    // onChildChanged(messagesRef, (data) => {
+    //   this.setState((state) => ({
+    //     messages: [...state.messages, { key: data.key, val: data.val() }],
+    //   }));
+    // });
   }
 
   // Note use of array fields syntax to avoid having to manually bind this method to the class
@@ -47,7 +61,10 @@ class App extends React.Component {
       date: timeStamp,
       message: this.state.inputMessage,
       imageurl: url,
+      likes: 0,
+      comments: [""],
     });
+    this.setState({ fileInputValue: "", inputMessage: "" });
   };
 
   uploadImage = (e) => {
@@ -67,32 +84,110 @@ class App extends React.Component {
       .then((url) => {
         return this.writeData(url);
       });
-
-    this.setState({ fileInputValue: "", inputMessage: "" });
   };
 
+  updateLikes = (item, i) => {
+    const messageListRef = ref(database, MESSAGE_FOLDER_NAME);
+    const updates = {};
+    let newData = {
+      date: item.val.date,
+      imageurl: item.val.imageurl,
+      likes: item.val.likes + 1,
+      message: item.val.message,
+      comments: item.val.comments,
+    };
+    updates[item.key] = newData;
+    update(messageListRef, updates).then(() => {
+      console.log("data updated!");
+    });
+    let newArray = this.state.messages;
+    newArray[i].val = newData;
+    this.setState({ messages: newArray });
+  };
+
+  addComment = (item, i) => {
+    if (this.state.comment !== "") {
+      const messageListRef = ref(database, MESSAGE_FOLDER_NAME);
+      const updates = {};
+      let newData = {
+        date: item.val.date,
+        imageurl: item.val.imageurl,
+        likes: item.val.likes,
+        message: item.val.message,
+        comments: [...item.val.comments, this.state.comment],
+      };
+      updates[item.key] = newData;
+      update(messageListRef, updates).then(() => {
+        console.log("comment added!");
+      });
+      let newArray = this.state.messages;
+      newArray[i].val = newData;
+      this.setState({ messages: newArray });
+      this.setState({ comment: "" });
+    }
+  };
+
+  componentDidUpdate(prevState) {
+    if (this.state.messages !== prevState.messages) {
+      console.log("CDU: updated ");
+      // const messagesRef = ref(database, MESSAGE_FOLDER_NAME);
+      // onChildChanged(messagesRef, (data) => {
+      //   console.log(data);
+      // });
+    }
+  }
   render() {
     // Convert messages in state to message JSX elements to render
-    let messageListItems = this.state.messages.map((message) => (
-      <li key={message.key}>
+    let messageListItems = this.state.messages.map((message, index) => (
+      <li key={message.key} className="feed">
         {message.val.date}
+        <input
+          type="submit"
+          onClick={() => {
+            this.updateLikes(message, index);
+          }}
+          value="Like"
+        />{" "}
+        {message.val.likes}
         <br /> {message.val.message}
         <br />
         <img className="images" src={message.val.imageurl} alt="" />
+        <br />
+        <input
+          type="text"
+          value={this.state.comment}
+          placeholder="Comments"
+          onChange={(e) => {
+            this.setState({ comment: e.target.value });
+          }}
+        />
+        <input
+          type="submit"
+          value="Comment"
+          onClick={() => this.addComment(message, index)}
+        />
+        {message.val.comments.length > 1 ? (
+          <div>
+            <p>Comments:</p>
+            <ul>
+              {message.val.comments.map((comment) => (
+                <li className="listitem">{comment}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        <br />
       </li>
     ));
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
           {/* TODO: Add input field and add text input as messages in Firebase */}
           <form>
             <input
               type="text"
               onChange={(e) => this.setState({ inputMessage: e.target.value })}
+              value={this.state.inputMessage}
             />
 
             <input

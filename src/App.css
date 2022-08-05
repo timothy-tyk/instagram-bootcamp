@@ -17,8 +17,14 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
-
+.feed {
+  display: block;
+}
 .images {
   height: 30vh;
   width: auto;
+}
+
+.listitem {
+  list-style: none;
 }
