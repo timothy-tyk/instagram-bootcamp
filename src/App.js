@@ -15,6 +15,7 @@ import {
   ref as storageReference,
   uploadBytes,
 } from "firebase/storage";
+import Comments from "./Comments";
 
 // Save the Firebase message folder name as a constant to avoid bugs due to misspelling
 const MESSAGE_FOLDER_NAME = "messages";
@@ -31,7 +32,6 @@ class App extends React.Component {
       fileInputFile: null,
       fileInputValue: "",
       comment: "",
-      commentOn: [],
     };
   }
 
@@ -105,8 +105,9 @@ class App extends React.Component {
     this.setState({ messages: newArray });
   };
 
-  addComment = (item, i) => {
-    if (this.state.comment !== "") {
+  addComment = (item, i, comment) => {
+    console.log("here");
+    if (comment !== "") {
       const messageListRef = ref(database, MESSAGE_FOLDER_NAME);
       const updates = {};
       let newData = {
@@ -114,7 +115,7 @@ class App extends React.Component {
         imageurl: item.val.imageurl,
         likes: item.val.likes,
         message: item.val.message,
-        comments: [...item.val.comments, this.state.comment],
+        comments: [...item.val.comments, comment],
       };
       updates[item.key] = newData;
       update(messageListRef, updates).then(() => {
@@ -123,7 +124,6 @@ class App extends React.Component {
       let newArray = this.state.messages;
       newArray[i].val = newData;
       this.setState({ messages: newArray });
-      this.setState({ comment: "" });
     }
   };
 
@@ -153,7 +153,10 @@ class App extends React.Component {
         <br />
         <img className="images" src={message.val.imageurl} alt="" />
         <br />
-        <input
+        <Comments
+          handleClick={(comment) => this.addComment(message, index, comment)}
+        />
+        {/* <input
           type="text"
           value={this.state.comment}
           placeholder="Comments"
@@ -165,7 +168,7 @@ class App extends React.Component {
           type="submit"
           value="Comment"
           onClick={() => this.addComment(message, index)}
-        />
+        /> */}
         {message.val.comments.length > 1 ? (
           <div>
             <p>Comments:</p>
