@@ -16,6 +16,7 @@ import {
   uploadBytes,
 } from "firebase/storage";
 import Comments from "./Comments";
+import Likes from "./Likes";
 
 // Save the Firebase message folder name as a constant to avoid bugs due to misspelling
 const MESSAGE_FOLDER_NAME = "messages";
@@ -141,14 +142,18 @@ class App extends React.Component {
     let messageListItems = this.state.messages.map((message, index) => (
       <li key={message.key} className="feed">
         {message.val.date}
-        <input
+        {/* <input
           type="submit"
           onClick={() => {
             this.updateLikes(message, index);
           }}
           value="Like"
         />{" "}
-        {message.val.likes}
+        {message.val.likes} */}
+        <Likes
+          likes={message.val.likes}
+          handleClick={() => this.updateLikes(message, index)}
+        />
         <br /> {message.val.message}
         <br />
         <img className="images" src={message.val.imageurl} alt="" />
@@ -156,19 +161,6 @@ class App extends React.Component {
         <Comments
           handleClick={(comment) => this.addComment(message, index, comment)}
         />
-        {/* <input
-          type="text"
-          value={this.state.comment}
-          placeholder="Comments"
-          onChange={(e) => {
-            this.setState({ comment: e.target.value });
-          }}
-        />
-        <input
-          type="submit"
-          value="Comment"
-          onClick={() => this.addComment(message, index)}
-        /> */}
         {message.val.comments.length > 1 ? (
           <div>
             <p>Comments:</p>
