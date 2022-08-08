@@ -9,7 +9,7 @@ import {
 } from "firebase/database";
 import { database, storage } from "./firebase";
 import logo from "./logo.png";
-import "./App.css";
+
 import {
   getDownloadURL,
   ref as storageReference,
@@ -141,36 +141,18 @@ class App extends React.Component {
     // Convert messages in state to message JSX elements to render
     let messageListItems = this.state.messages.map((message, index) => (
       <li key={message.key} className="feed">
-        {message.val.date}
-        {/* <input
-          type="submit"
-          onClick={() => {
-            this.updateLikes(message, index);
-          }}
-          value="Like"
-        />{" "}
-        {message.val.likes} */}
+        Post: {message.val.message} | <i>{message.val.date}</i>
         <Likes
           likes={message.val.likes}
           handleClick={() => this.updateLikes(message, index)}
         />
-        <br /> {message.val.message}
         <br />
         <img className="images" src={message.val.imageurl} alt="" />
         <br />
         <Comments
+          messageItem={message}
           handleClick={(comment) => this.addComment(message, index, comment)}
         />
-        {message.val.comments.length > 1 ? (
-          <div>
-            <p>Comments:</p>
-            <ul>
-              {message.val.comments.map((comment) => (
-                <li className="listitem">{comment}</li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
         <br />
       </li>
     ));

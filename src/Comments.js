@@ -1,4 +1,5 @@
 import React from "react";
+import "./App.css";
 
 export default class Comments extends React.Component {
   constructor(props) {
@@ -9,10 +10,14 @@ export default class Comments extends React.Component {
   componentDidUpdate(prevState) {
     if (this.state.comment !== prevState.comment) {
       console.log("CDU comment");
+      console.log(this.props.messageItem.val.comments);
     }
   }
 
   render() {
+    let comments = this.props.messageItem.val.comments.filter(
+      (comment) => comment.length > 0
+    );
     return (
       <div>
         <input
@@ -29,6 +34,16 @@ export default class Comments extends React.Component {
             this.setState({ comment: "" });
           }}
         />
+        {comments.length > 1 ? (
+          <div>
+            <p>Comments:</p>
+            <ol>
+              {comments.map((comment) => {
+                return <li className="listitem">{comment}</li>;
+              })}
+            </ol>
+          </div>
+        ) : null}
       </div>
     );
   }
