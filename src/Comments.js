@@ -1,10 +1,11 @@
 import React from "react";
 import "./App.css";
+import { Typography } from "@mui/material";
 
 export default class Comments extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { toggle: false, comment: "" };
+    this.state = { comment: "" };
   }
 
   componentDidUpdate(prevState) {
@@ -16,7 +17,7 @@ export default class Comments extends React.Component {
 
   render() {
     let comments = this.props.messageItem.val.comments.filter(
-      (comment) => comment.length > 0
+      (comment) => comment.text.length > 0
     );
     return (
       <div>
@@ -34,14 +35,27 @@ export default class Comments extends React.Component {
             this.setState({ comment: "" });
           }}
         />
-        {comments.length > 1 ? (
+        {comments.length > 0 ? (
           <div>
             <p>Comments:</p>
-            <ol>
+            <ul>
               {comments.map((comment) => {
-                return <li className="listitem">{comment}</li>;
+                return (
+                  <li className="listitem">
+                    <Typography variant="overline" fontSize={10}>
+                      {comment.user}:
+                    </Typography>
+                    <Typography
+                      variant="p"
+                      fontSize={18}
+                      sx={{ textAlign: "center" }}
+                    >
+                      {comment.text}
+                    </Typography>
+                  </li>
+                );
               })}
-            </ol>
+            </ul>
           </div>
         ) : null}
       </div>

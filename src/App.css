@@ -26,5 +26,18 @@
 }
 
 .listitem {
-  /* list-style: none; */
+  text-align: justify;
+  align-items: center;
+}
+
+.input-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-row-label {
+  align-items: center;
+}
+.logoutbutton {
+  float: left;
 }
